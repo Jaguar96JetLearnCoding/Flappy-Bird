@@ -31,12 +31,16 @@ all_sprites=pygame.sprite.Group()
 birdgroup.add(bird)
 all_sprites.add(bird)
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self,image,x,y):
+    def __init__(self,image,x,y,position):
         super().__init__()
         self.image=image
         self.rect=self.image.get_rect()
-        self.rect.x=x
-        self.rect.y=y
+        if position=="up":
+            self.image=pygame.transform.flip(self.image,False,True)
+            self.rect.bottomleft=(x,y)
+        else:
+            self.rect.x=x
+            self.rect.y=y
     def update(self):
         self.rect.x-=4
         if self.rect.x<=-78:
@@ -46,7 +50,7 @@ class Obstacle(pygame.sprite.Sprite):
             
 
 
-
+floor_x=0
 obstaclegroup=pygame.sprite.Group()
 run=True
 while run==True:
@@ -54,12 +58,19 @@ while run==True:
     birdgroup.draw(screen)  
     obstaclegroup.draw(screen)
     obstaclegroup.update()
-    screen.blit(floor,(0,700))
+    screen.blit(floor,(floor_x,700))
+    floor_x=floor_x-1
+    if floor_x<=-36:
+        floor_x=0
     time_now=pygame.time.get_ticks()
     if time_now-last_pole>pole_duration:
-      obstacle=Obstacle(pole,864,320)
+      y=random.randint(0,200)
+      obstacle=Obstacle(pole,864,320+y,"down")
+      obstacle_up=Obstacle(pole,864,120+y,"up")
       obstaclegroup.add(obstacle)
+      obstaclegroup.add(obstacle_up)
       all_sprites.add(obstacle)
+      all_sprites.add(obstacle_up)
       last_pole=time_now
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
