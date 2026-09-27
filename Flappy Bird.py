@@ -25,6 +25,22 @@ class Bird(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.rect.x=x
         self.rect.y=y
+        self.vy=0
+        self.wing_pos=1
+        self.count=0
+    def update(self):
+        self.count=self.count+1
+        if self.count>20:
+            self.count=0
+            self.index=self.index+self.wing_pos
+            if self.index==2:
+                self.wing_pos=-1
+            if self.index==0:
+                self.wing_pos=1
+            self.image=self.images[self.index]
+            self.vy=self.vy+0.5
+        self.rect.y=self.rect.y+self.vy
+    
 bird=Bird(300,400)
 birdgroup=pygame.sprite.Group()
 all_sprites=pygame.sprite.Group()
@@ -58,6 +74,7 @@ while run==True:
     birdgroup.draw(screen)  
     obstaclegroup.draw(screen)
     obstaclegroup.update()
+    bird.update()
     screen.blit(floor,(floor_x,700))
     floor_x=floor_x-1
     if floor_x<=-36:
@@ -72,7 +89,14 @@ while run==True:
       all_sprites.add(obstacle)
       all_sprites.add(obstacle_up)
       last_pole=time_now
+      if bird.y<=0:
+          run=False
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
+        if event.type==pygame.KEYDOWN:
+            if event.key==pygame.K_w or event.key==pygame.K_UP:
+                bird.vy=-2.50
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            bird.vy=-2.50
     pygame.display.update()
