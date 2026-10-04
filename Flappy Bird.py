@@ -14,7 +14,8 @@ floor=pygame.image.load("Flappy Floor surface.png")
 background=pygame.image.load("Flappy background.png")
 font=pygame.font.SysFont("Impact",50)
 last_pole=pygame.time.get_ticks()
-pole_duration=3000
+pole_duration=5000
+score=0
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -58,8 +59,8 @@ class Obstacle(pygame.sprite.Sprite):
             self.rect.x=x
             self.rect.y=y
     def update(self):
-        self.rect.x-=4
-        if self.rect.x<=-78:
+        self.rect.x-=3
+        if self.rect.right<0:
             self.kill()
 
 
@@ -73,12 +74,19 @@ while run==True:
     screen.blit(background,(0,0))
     birdgroup.draw(screen)  
     obstaclegroup.draw(screen)
+    font=pygame.font.SysFont("Impact",40)
+    score_keep=font.render("Score: "+str(score),True,"Black")
+    screen.blit(score_keep,(30,30))
     obstaclegroup.update()
     bird.update()
     screen.blit(floor,(floor_x,700))
     floor_x=floor_x-1
     if floor_x<=-36:
         floor_x=0
+    if len(obstaclegroup)>0:
+        if bird.rect.x==obstaclegroup.sprites()[0].rect.x:
+                score=score+1
+                
     time_now=pygame.time.get_ticks()
     if time_now-last_pole>pole_duration:
       y=random.randint(0,200)
@@ -89,9 +97,17 @@ while run==True:
       all_sprites.add(obstacle)
       all_sprites.add(obstacle_up)
       last_pole=time_now
-      if bird.y<=0:
-          run=False
+    if bird.rect.y<=0:
+        score=0
+        run=False
+    if bird.rect.y>=664:
+        score=0
+        run=False
+    if pygame.sprite.groupcollide(birdgroup,obstaclegroup,False,False):
+        score=0
+        run=False
     for event in pygame.event.get():
+
         if event.type==pygame.QUIT:
             run=False
         if event.type==pygame.KEYDOWN:
